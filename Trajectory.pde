@@ -44,6 +44,12 @@ class Trajectory {
      return t;
    }
    
+   public float[] GetCenter () {
+     print ("Bad call: abstract function");
+     float [] ret = {0,0};
+     return ret;
+   }
+   
    public float[] GetInitPoint () {
      print ("Bad call: abstract function");
      float [] ret = {0,0};
@@ -59,8 +65,20 @@ class Trajectory {
      return n;
    }
    
+   public boolean GetRoundTrip () {
+     return roundTrip;
+   }
+   
    public boolean GetSense () {
      return sense;
+   }
+   
+   public int GetType () {
+     return type;
+   }
+   
+   public float GetVelocity () {
+     return vel;
    }
    
    public boolean IsRoundTrip () {

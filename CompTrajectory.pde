@@ -6,53 +6,51 @@
    private float[] segms;
    
    CompTrajectory (Trajectory [] trst, float velt, boolean roundTript) {
-     AjustTrajectories (trst);
+     AdjustTrajectories (trst);
      SetVelocity (velt);
      SetRoundTrip (roundTript);
    }
    
    CompTrajectory (Trajectory [] trst, float velt, boolean roundTript, int typet) {
-     AjustTrajectories (trst);
+     AdjustTrajectories (trst);
      SetVelocity (velt);
      SetRoundTrip (roundTript);
      SetType (typet);
    }
    
-   // closeTrajectory
-   
    public void AddCompTrajectory (CompTrajectory ctrt) {
      Trajectory [] trst = ctrt.GetTrajectories ();
      trst = (Trajectory []) concat (trs, trst);
-     AjustTrajectories (trst);
+     AdjustTrajectories (trst);
    }
    
    public void AddCompTrajectory (CompTrajectory ctrt, int index) {
      Trajectory [] trst = ctrt.GetTrajectories ();
      trst = (Trajectory []) splice (trs, trst, index);
-     AjustTrajectories (trst);
+     AdjustTrajectories (trst);
    }
    
    public void AddTrajectory (Trajectory trt) {
      Trajectory [] trst = (Trajectory []) append (trs, trt);
-     AjustTrajectories (trst);
+     AdjustTrajectories (trst);
    }
    
    public void AddTrajectory (Trajectory trt, int index) {
      Trajectory [] trst = (Trajectory []) splice (trs, trt, index);
-     AjustTrajectories (trst);
+     AdjustTrajectories (trst);
    }
    
    public void AddTrajectories (Trajectory [] trt) {
      Trajectory [] trst = (Trajectory []) concat (trs, trt);
-     AjustTrajectories (trst);
+     AdjustTrajectories (trst);
    }
    
    public void AddTrajectories (Trajectory [] trt, int index) {
      Trajectory [] trst = (Trajectory []) splice (trs, trt, index);
-     AjustTrajectories (trst);
+     AdjustTrajectories (trst);
    }
    
-   private void AjustTrajectories (Trajectory [] trst) {
+   private void AdjustTrajectories (Trajectory [] trst) {
      N = trst.length;
      trs = new Trajectory [N];
      totalLength = 0;
@@ -66,12 +64,28 @@
        segms [i] = segms [i-1] + trs [i-1].GetLength ()/totalLength;
    }
    
-   // Poner de parámetro el tipo.
    public void CloseTrajectory () {
      if (!IsClose (2)) {
        Trajectory ctr = new LinealTrajectory2D (trs [N-1].GetEndPoint()[0], 
        trs [N-1].GetEndPoint()[1], trs [0].GetInitPoint()[0], trs [0].GetInitPoint()[1], 0, false);
        AddTrajectory (ctr);
+     }
+   }
+   
+   public void CloseTrajectory (String typ, boolean torient) {
+     if (!IsClose (2)) {
+       if (typ.equals ("Lineal2D")) {
+         Trajectory ctr1 = new LinealTrajectory2D (trs [N-1].GetEndPoint()[0], 
+         trs [N-1].GetEndPoint()[1], trs [0].GetInitPoint()[0], trs [0].GetInitPoint()[1], 0, false);
+         AddTrajectory (ctr1);
+       } else if (typ.equals ("Circle") && N > 1) {
+         Trajectory ctr2 = new CircularTrajectory (torient, trs [N-1].GetEndPoint()[0], 
+         trs [N-1].GetEndPoint()[1], trs [N-1].GetEndPoint()[0] - trs [N-2].GetEndPoint()[0], 
+         trs [N-1].GetEndPoint()[1] - trs [N-2].GetEndPoint()[1], trs [0].GetInitPoint()[0], 
+         trs [0].GetInitPoint()[1], trs [1].GetInitPoint()[0] - trs [0].GetInitPoint()[0], 
+         trs [1].GetInitPoint()[1] - trs [0].GetInitPoint()[1], 0, false);
+         AddTrajectory (ctr2);
+       }
      }
    }
    
@@ -136,9 +150,6 @@
      return ret;
    }
    
-   // Función de añadir una o más.
-   // Función de quitar.
-   
    public float GetCompFunction () {
      return t1;
    }
@@ -174,5 +185,12 @@
        if (dt <= tol) ret = true;
      }
      return ret;
+   }
+   
+   public void RemoveTrajectory (int index) {
+     Trajectory [] trst1 = (Trajectory []) subset (trs, index-1);
+     Trajectory [] trst2 = (Trajectory []) subset (trs, index);
+     Trajectory [] trst = (Trajectory []) concat (trst1, trst2);
+     AdjustTrajectories (trst);
    }
  }

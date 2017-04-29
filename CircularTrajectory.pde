@@ -2,12 +2,15 @@ class CircularTrajectory extends Trajectory {
    
    private float cx, cy, r, radI, radF;
    private float xi, yi, xf, yf, curv;
+   private boolean orientation;
    private float tp;
    /*
-   Two constructive modes:
+   Three constructive modes:
     - Circle: Center (cx, cy), radius and inner angle.
     - Arc: Two points in a 2D space joined by a circle's arc.
       curv: distance between arc's extremes and circle's center.
+    - Tangent to two points with one direction asociated for each one.
+      (if possible)
    */
    
    CircularTrajectory (float cxt, float cyt, float rt, float velt, boolean roundTript) {
@@ -45,50 +48,47 @@ class CircularTrajectory extends Trajectory {
    }
    
    // Arcs constructors
-   CircularTrajectory (boolean tg, float xit, float yit, float xft, float yft, float curvt, float velt, boolean roundTript) {
-     if (!tg) {
-       curv = curvt;
-       SetVelocity (velt);
-       SetRoundTrip (roundTript);
-       ArcToCircle (xi, yi, xf, yf, curv);
-     }
+   CircularTrajectory (boolean torient, float xit, float yit, float xft, float yft, float curvt, float velt, boolean roundTript) {
+     curv = curvt;
+     SetVelocity (velt);
+     SetRoundTrip (roundTript);
+     orientation = torient;
+     ArcToCircle (xit, yit, xft, yft, curv);
    }
    
-   CircularTrajectory (boolean tg, float xit, float yit, float xft, float yft, float curvt, float velt, boolean roundTript, int ttype) {
-     if (!tg) {
-       curv = curvt;
-       SetVelocity (velt);
-       SetRoundTrip (roundTript);
-       SetType (ttype);
-       ArcToCircle (xi, yi, xf, yf, curv);
-     }
+   CircularTrajectory (boolean torient, float xit, float yit, float xft, float yft, float curvt, float velt, boolean roundTript, int ttype) {
+     curv = curvt;
+     SetVelocity (velt);
+     SetRoundTrip (roundTript);
+     SetType (ttype);
+     orientation = torient;
+     ArcToCircle (xit, yit, xft, yft, curv);
    }
    
-   CircularTrajectory (boolean tg, float xit, float yit, float dxit, float dyit, float xft, float yft, float dxft, float dyft, float velt, boolean roundTript) {
-     if (tg) {
-       if (dyft*dxit != dxft*dyit) {
-         AdjustTgCurv (xit, yit, dxit, dyit, xft, yft, dxft, dyft);
-       } else {
-         ArcToCircle (xit, yit, xft, yft, 0);
-         print ("Bad call: no tangent circle possible");
-       }
-       SetVelocity (velt);
-       SetRoundTrip (roundTript);
+   // Tangents constructors:
+   CircularTrajectory (boolean torient, float xit, float yit, float dxit, float dyit, float xft, float yft, float dxft, float dyft, float velt, boolean roundTript) {
+     orientation = torient;
+     if (dyft*dxit != dxft*dyit) {
+       AdjustTgCurv (xit, yit, dxit, dyit, xft, yft, dxft, dyft);
+     } else {
+       ArcToCircle (xit, yit, xft, yft, 0);
+       print ("Bad call: no tangent circle possible. Code A.");
      }
+     SetVelocity (velt);
+     SetRoundTrip (roundTript);
    }
    
-   CircularTrajectory (boolean tg, float xit, float yit, float dxit, float dyit, float xft, float yft, float dxft, float dyft, float velt, boolean roundTript, int ttype) {
-     if (tg) {
-       if (dyft*dxit != dxft*dyit) {
-         AdjustTgCurv (xit, yit, dxit, dyit, xft, yft, dxft, dyft);
-       } else {
-         ArcToCircle (xit, yit, xft, yft, 0);
-         print ("Bad call: no tangent circle possible");
-       }
-       SetVelocity (velt);
-       SetRoundTrip (roundTript);
-       SetType (ttype);
+   CircularTrajectory (boolean torient, float xit, float yit, float dxit, float dyit, float xft, float yft, float dxft, float dyft, float velt, boolean roundTript, int ttype) {
+     orientation = torient;
+     if (dyft*dxit != dxft*dyit) {
+       AdjustTgCurv (xit, yit, dxit, dyit, xft, yft, dxft, dyft);
+     } else {
+       ArcToCircle (xit, yit, xft, yft, 0);
+       print ("Bad call: no tangent circle possible. Code B.");
      }
+     SetVelocity (velt);
+     SetRoundTrip (roundTript);
+     SetType (ttype);
    }
    
    private void AdjustTgCurv (float xit, float yit, float dxit, float dyit, float xft, float yft, float dxft, float dyft) {
@@ -96,6 +96,14 @@ class CircularTrajectory extends Trajectory {
      yi = yit;
      xf = xft;
      yf = yft;
+     // normalizo esto.
+     float ditn = sqrt (dxit*dxit+dyit*dyit);
+     dxit = dxit/ditn;
+     dyit = dyit/ditn;
+     float dftn = sqrt (dxft*dxft+dyft*dyft);
+     dxft = dxft/dftn;
+     dyft = dyft/dftn;
+     
      float den = dyft*dxit - dxft*dyit;
      cx = (dyft*dxit*xi + dyft*dyit*yi - dxft*dyit*xf - dyft*dyit*yf)/den;
      cy = (dxft*dxit*xf + dyft*dxit*yf - dxft*dxit*xi - dxft*dyit*yf)/den;
@@ -109,16 +117,36 @@ class CircularTrajectory extends Trajectory {
      if (abs (r-r2) <= 2) {
        // Angles
        float CC0_x = 0;
-       float CC0_y = r;
+       float CC0_y = -r;
        float CCI_x = xi-cx;
        float CCI_y = yi-cy;
        float CCF_x = xf-cx;
        float CCF_y = yf-cy;
-       radI = angle_between (CCI_x, CCI_y, CC0_x, CC0_y);
-       radF = angle_between (CCF_x, CCF_y, CC0_x, CC0_y);
+       radI = -angle_between (CC0_x, CC0_y, CCI_x, CCI_y);
+       radF = -angle_between (CC0_x, CC0_y, CCF_x, CCF_y);
+       if (orientation) {
+         while (radF < radI) radF+=2*PI;
+         //while (radF > radI+2*PI) radF-=2*PI;
+       } else {
+         while (radF > radI) radI+=2*PI;
+         //while (radF < radI+2*PI) radI-=2*PI;
+       }
+       // curv:
+       float IF_x = xf-xi;
+       float IF_y = yf-yi;
+       float cx1 = (xit+xft)/2;
+       float cy1 = (yit+yft)/2;
+       float dx = cx-cx1;
+       float dy = cy-cy1;
+       curv = sqrt (dx*dx + dy*dy);
+       if (angle_between(IF_x, IF_y, IC_x, IC_y) > PI) curv = -curv;
      } else {
-       ArcToCircle (xi, yi, xf, yf, 0);
-       print ("Bad call: no tangent circle possible");
+       print ("Bad call: no tangent circle possible. Code C.\n");
+       println ("r: " + r + ". r2: " + r2);
+       //println ("cx: " + cx + ". cy: " + cy);
+       //ArcToCircle (xi, yi, xf, yf, 0);
+       radI = 0;
+       radF = 2*PI;
      }
    }
    
@@ -142,13 +170,20 @@ class CircularTrajectory extends Trajectory {
      r = sqrt (IC_x*IC_x+IC_y*IC_y);
      // Angles
      float CC0_x = 0;
-     float CC0_y = r;
+     float CC0_y = -r;
      float CCI_x = xit-cx;
      float CCI_y = yit-cy;
      float CCF_x = xft-cx;
      float CCF_y = yft-cy;
-     radI = angle_between (CCI_x, CCI_y, CC0_x, CC0_y);
-     radF = angle_between (CCF_x, CCF_y, CC0_x, CC0_y);
+     radI = -angle_between (CC0_x, CC0_y, CCI_x, CCI_y);
+     radF = -angle_between (CC0_x, CC0_y, CCF_x, CCF_y);
+     if (orientation) {
+       while (radF < radI) radF+=2*PI;
+       //while (radF > radI+2*PI) radF-=2*PI;
+     } else {
+       while (radF > radI) radI+=2*PI;
+       //while (radF < radI+2*PI) radI-=2*PI;
+     }
    }
    
    private float angle_between(float ax, float ay, float bx, float by) {
@@ -184,11 +219,11 @@ class CircularTrajectory extends Trajectory {
      float[] ret = new float [2];
      tp = GetFunction ();
      if (GetSense()) {
-       ret[0] = r*sin (tp*(radF-radI) + radI) +cx;
-       ret[1] = r*cos (tp*(radF-radI) + radI) +cy;
+       ret[0] = -r*sin (tp*(radF-radI) + radI) +cx;
+       ret[1] = -r*cos (tp*(radF-radI) + radI) +cy;
      } else {
-       ret[0] = r*sin (-tp*(radF-radI) + radF) +cx;
-       ret[1] = r*cos (-tp*(radF-radI) + radF) +cy;
+       ret[0] = -r*sin (-tp*(radF-radI) + radF) +cx;
+       ret[1] = -r*cos (-tp*(radF-radI) + radF) +cy;
      }
      return ret;
    }
@@ -196,11 +231,11 @@ class CircularTrajectory extends Trajectory {
    public float[] coord (float tt) {
      float[] ret = new float [2];
      if (GetSense()) {
-       ret[0] = r*sin (tt*(radF-radI) + radI) +cx;
-       ret[1] = r*cos (tt*(radF-radI) + radI) +cy;
+       ret[0] = -r*sin (tt*(radF-radI) + radI) +cx;
+       ret[1] = -r*cos (tt*(radF-radI) + radI) +cy;
      } else {
-       ret[0] = r*sin (-tt*(radF-radI) + radF) +cx;
-       ret[1] = r*cos (-tt*(radF-radI) + radF) +cy;
+       ret[0] = -r*sin (-tt*(radF-radI) + radF) +cx;
+       ret[1] = -r*cos (-tt*(radF-radI) + radF) +cy;
      }
      return ret;
    }
@@ -208,11 +243,11 @@ class CircularTrajectory extends Trajectory {
    public float[] coord (float tt, boolean senset) {
      float[] ret = new float [2];
      if (senset) {
-       ret[0] = r*sin (tt*(radF-radI) + radI) +cx;
-       ret[1] = r*cos (tt*(radF-radI) + radI) +cy;
+       ret[0] = -r*sin (tt*(radF-radI) + radI) +cx;
+       ret[1] = -r*cos (tt*(radF-radI) + radI) +cy;
      } else {
-       ret[0] = r*sin (-tt*(radF-radI) + radF) +cx;
-       ret[1] = r*cos (-tt*(radF-radI) + radF) +cy;
+       ret[0] = -r*sin (-tt*(radF-radI) + radF) +cx;
+       ret[1] = -r*cos (-tt*(radF-radI) + radF) +cy;
      }
      return ret;
    }
@@ -220,6 +255,10 @@ class CircularTrajectory extends Trajectory {
    public float [] GetCenter () {
      float [] ret = {cx, cy};
      return ret;
+   }
+   
+   public float GetCurv () {
+     return curv;
    }
    
    public float [] GetEndPoint () {
@@ -233,7 +272,19 @@ class CircularTrajectory extends Trajectory {
    }
    
    public float GetLength () {
-     return (radF-radI)*r;
+     return abs ((radF-radI)*r);
+   }
+   
+   public boolean GetOrientation () {
+     return orientation;
+   }
+   
+   public float GetRadF () {
+     return radF;
+   }
+   
+   public float GetRadI () {
+     return radI;
    }
    
    public float GetRadius () {
@@ -242,5 +293,15 @@ class CircularTrajectory extends Trajectory {
    
    public String GetTrajectoryType () {
      return "Circle";
+   }
+   
+   public void SetCurv (float tcurv) {
+     curv = tcurv;
+     ArcToCircle (xi, yi, xf, yf, tcurv);
+   }
+   
+   public void SetOrientation (boolean torient) {
+     orientation = torient;
+     ArcToCircle (xi, yi, xf, yf, curv);
    }
  }
