@@ -79,11 +79,10 @@
          trs [N-1].GetEndPoint()[1], trs [0].GetInitPoint()[0], trs [0].GetInitPoint()[1], 0, false);
          AddTrajectory (ctr1);
        } else if (typ.equals ("Circle") && N > 1) {
-         Trajectory ctr2 = new CircularTrajectory (torient, trs [N-1].GetEndPoint()[0], 
+         Trajectory ctr2 = new CircularTrajectory (true, trs [N-1].GetEndPoint()[0], 
          trs [N-1].GetEndPoint()[1], trs [N-1].GetEndPoint()[0] - trs [N-2].GetEndPoint()[0], 
          trs [N-1].GetEndPoint()[1] - trs [N-2].GetEndPoint()[1], trs [0].GetInitPoint()[0], 
-         trs [0].GetInitPoint()[1], trs [1].GetInitPoint()[0] - trs [0].GetInitPoint()[0], 
-         trs [1].GetInitPoint()[1] - trs [0].GetInitPoint()[1], 0, false);
+         trs [0].GetInitPoint()[1], 0, false);
          AddTrajectory (ctr2);
        }
      }
@@ -96,15 +95,13 @@
        for (int i = 0; i < N; i++)
          if (segms [i] <= tp && tp <= segms [i+1]) {
            t1 = (tp-segms [i])/(segms [i+1] - segms [i]);
-           ret[0] = trs [i].coord (t1, true)[0];
-           ret[1] = trs [i].coord (t1, true)[1];
+           ret = trs [i].coord (t1, true);
          }
      } else {
        for (int i = 0; i < N; i++)
          if (segms [i] <= 1-tp && 1-tp <= segms [i+1]) {
            t1 = ((1-tp)-segms [i])/(segms [i+1] - segms [i]);
-           ret[0] = trs [i].coord (t1, true)[0];
-           ret[1] = trs [i].coord (t1, true)[1];
+           ret = trs [i].coord (t1, true);
          }
      }
      return ret;
@@ -116,15 +113,13 @@
        for (int i = 0; i < N; i++)
          if (segms [i] <= tt && tt <= segms [i+1]) {
            t1 = (tt-segms [i])/(segms [i+1] - segms [i]);
-           ret[0] = trs [i].coord (t1, true)[0];
-           ret[1] = trs [i].coord (t1, true)[1];
+           ret = trs [i].coord (t1, true);
          }
      } else {
        for (int i = 0; i < N; i++)
          if (segms [i] <= 1-tt && 1-tt <= segms [i+1]) {
            t1 = ((1-tt)-segms [i])/(segms [i+1] - segms [i]);
-           ret[0] = trs [i].coord (t1, true)[0];
-           ret[1] = trs [i].coord (t1, true)[1];
+           ret = trs [i].coord (t1, true);
          }
      }
      return ret;
@@ -136,15 +131,13 @@
        for (int i = 0; i < N; i++)
          if (segms [i] <= tt && tt <= segms [i+1]) {
            t1 = (tt-segms [i])/(segms [i+1] - segms [i]);
-           ret[0] = trs [i].coord (t1, true)[0];
-           ret[1] = trs [i].coord (t1, true)[1];
+           ret = trs [i].coord (t1, true);
          }
      } else {
        for (int i = 0; i < N; i++)
          if (segms [i] <= 1-tt && 1-tt <= segms [i+1]) {
            t1 = ((1-tt)-segms [i])/(segms [i+1] - segms [i]);
-           ret[0] = trs [i].coord (t1, true)[0];
-           ret[1] = trs [i].coord (t1, true)[1];
+           ret = trs [i].coord (t1, true);
          }
      }
      return ret;
@@ -190,6 +183,13 @@
    public void RemoveTrajectory (int index) {
      Trajectory [] trst1 = (Trajectory []) subset (trs, index-1);
      Trajectory [] trst2 = (Trajectory []) subset (trs, index);
+     Trajectory [] trst = (Trajectory []) concat (trst1, trst2);
+     AdjustTrajectories (trst);
+   }
+   
+   public void RemoveTrajectories (int i1, int i2) {
+     Trajectory [] trst1 = (Trajectory []) subset (trs, i1-1);
+     Trajectory [] trst2 = (Trajectory []) subset (trs, i2);
      Trajectory [] trst = (Trajectory []) concat (trst1, trst2);
      AdjustTrajectories (trst);
    }

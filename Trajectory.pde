@@ -4,22 +4,23 @@ class Trajectory {
    private boolean roundTrip;
    private boolean sense = true, ntc = false;
    private int type = 1, n = 0, n0 = 0;
-   // type: function: t=t0^type.
+   // type:     0: sinusoidal.
+   //        else: t=t0^type.
    
    public float [] coord () {
-     print ("Bad call: abstract function");
+     print ("Bad call: abstract function. Code A.");
      float [] ret = {0,0};
      return ret;
    }
    
    public float [] coord (float tt) {
-     print ("Bad call: abstract function");
+     print ("Bad call: abstract function. Code B.");
      float [] ret = {0,0};
      return ret;
    }
    
    public float [] coord (float tt, boolean senset) {
-     print ("Bad call: abstract function");
+     print ("Bad call: abstract function. Code C.");
      float [] ret = {0,0};
      return ret;
    }
@@ -31,11 +32,21 @@ class Trajectory {
    }
    
    public float functype (int typ, float t0t) {
-     return elevate (t0t, typ);
+     float ret;
+     if (typ == 0) {
+       ret = sin (t0t);
+     } else {
+       ret = elevate (t0t, typ);
+     }
+     return ret;
+   }
+   
+   public float GetGuide () {
+     return t0;
    }
    
    public float [] GetEndPoint () {
-     print ("Bad call: abstract function");
+     print ("Bad call: abstract function. Code D.");
      float [] ret = {0, 0};
      return ret;
    }
@@ -45,19 +56,19 @@ class Trajectory {
    }
    
    public float[] GetCenter () {
-     print ("Bad call: abstract function");
+     print ("Bad call: abstract function. Code E.");
      float [] ret = {0,0};
      return ret;
    }
    
    public float[] GetInitPoint () {
-     print ("Bad call: abstract function");
+     print ("Bad call: abstract function. Code F.");
      float [] ret = {0,0};
      return ret;
    }
    
    public float GetLength() {
-     print ("Bad call: abstract function");
+     print ("Bad call: abstract function. Code G.");
      return 0;
    }
    
@@ -110,6 +121,19 @@ class Trajectory {
        ntc = true;
      } else {
        ntc = false;
+     }
+   }
+   
+   public void Preview () {
+     if (GetLength() > 5) {
+       float l = 5/GetLength ();
+       for (float fg = 0; fg <= 1; fg+= l) {
+         noStroke ();
+         fill (150);
+         ellipse (coord (fg, true)[0], coord (fg, true)[1], 3, 3);
+       }
+     } else {
+       println ("Bad preview.");
      }
    }
    
