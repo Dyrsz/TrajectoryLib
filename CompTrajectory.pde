@@ -62,6 +62,7 @@
      segms [0] = 0;
      for (int i = 1; i < N+1; i++) 
        segms [i] = segms [i-1] + trs [i-1].GetLength ()/totalLength;
+     ActualizeBasics ();
    }
    
    public void CloseTrajectory () {
@@ -153,6 +154,10 @@
    
    public float GetNumberComp () {
      return N;
+   }
+   
+   public String GetTrajectoryType () {
+     return "Compound";
    }
    
    public Trajectory [] GetTrajectories () {

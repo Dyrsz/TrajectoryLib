@@ -6,21 +6,169 @@ class Trajectory {
    private int type = 1, n = 0, n0 = 0;
    // type:     0: sinusoidal.
    //        else: t=t0^type.
+   private float mcd, Mcd;
+   
+   public void ActualizeBasics () {
+     mcd = CalcMinCenterDistance ();
+     Mcd = CalcMaxCenterDistance ();
+   }
+   
+   public void ActualizeBasics (int precision) {
+     mcd = CalcMinCenterDistance (precision);
+     Mcd = CalcMaxCenterDistance (precision);
+   }
+   
+   public float CalcMaxCenterDistance () {
+     float ret = 0;
+     float [] c = GetCenter();
+     if (GetLength() > 5 && c != null) {
+       float l = 5/GetLength ();
+       float a, b, d;
+       for (float fg = 0; fg <= 1; fg+= l) {
+         a = c [0] - coord (fg, true)[0];
+         b = c [1] - coord (fg, true)[1];
+         d = a*a+b*b;
+         if (d > ret) ret = d;
+       }
+       ret = sqrt (ret);
+     } else {
+       println ("Bad call on Trajectory.CalcMaxCenterDistance ().");
+     }
+     return ret;
+   }
+   
+   public float CalcMaxCenterDistance (int precision) {
+     float ret = 0;
+     float [] c = GetCenter();
+     if (precision > 0) {
+       if (c != null) {
+         float l = 1/float (precision);
+         float a, b, d;
+         for (float fg = 0; fg <= 1; fg+= l) {
+           a = c [0] - coord (fg, true)[0];
+           b = c [1] - coord (fg, true)[1];
+           d = a*a+b*b;
+           if (d > ret) ret = d;
+         }
+         ret = sqrt (ret);
+       } else {
+         println ("Bad call on Trajectory.CalcMaxCenterDistance (). No center.");
+       }
+     } else {
+       println ("Bad input on Trajectory.CalcMaxCenterDistance ().");
+     }
+     return ret;
+   }
+   
+   public float CalcMinCenterDistance () {
+     float ret = 0;
+     float [] c = GetCenter();
+     if (GetLength() > 5 && c != null) {
+       float l = 5/GetLength ();
+       float a, b, d;
+       for (float fg = 0; fg <= 1; fg+= l) {
+         a = c [0] - coord (fg, true)[0];
+         b = c [1] - coord (fg, true)[1];
+         d = a*a+b*b;
+         if (fg == 0) {
+           ret = d;
+         } else {
+           if (d < ret) ret = d;
+         }
+       }
+       ret = sqrt (ret);
+     } else {
+       println ("Bad call on Trajectory.CalcMinCenterDistance ().");
+     }
+     return ret;
+   }
+   
+   public float CalcMinCenterDistance (int precision) {
+     float ret = 0;
+     float [] c = GetCenter();
+     if (precision > 0) {
+       if (c != null) {
+         float l = 1/float (precision);
+         float a, b, d;
+         for (float fg = 0; fg <= 1; fg+= l) {
+           a = c [0] - coord (fg, true)[0];
+           b = c [1] - coord (fg, true)[1];
+           d = a*a+b*b;
+           if (fg == 0) {
+             ret = d;
+           } else {
+             if (d < ret) ret = d;
+           }
+         }
+         ret = sqrt (ret);
+       } else {
+         println ("Bad call on Trajectory.CalcMinCenterDistance (). No center.");
+       }
+     } else {
+       println ("Bad input on Trajectory.CalcMinCenterDistance ().");
+     }
+     return ret;
+   }
+   
+   public float CenDisMaxNormalized () {
+     float ret = 0;
+     if (GetMaxCenterDistance () != 0) {
+       ret = CenterDistance ()/GetMaxCenterDistance ();
+     } else {
+       println ("Bad call on Trajectory.CenDisMaxNormalized (): Use Trajectory.ActualizeBasics () first.");
+     }
+     return ret;
+   }
+   
+   public float CenDisNormalized () {
+     float ret = 0;
+     if (GetMaxCenterDistance () != 0) {
+       if (GetMaxCenterDistance () > GetMinCenterDistance ()) {
+         ret = CenterDistance ()/(GetMaxCenterDistance () - GetMinCenterDistance ());
+       } else {
+         ret = CenterDistance ();
+       }
+     } else {
+       println ("Bad call on Trajectory.CenDisNormalized (): Use Trajectory.ActualizeBasics () first.");
+     }
+     return ret;
+   }
+   
+   public float CenterDistance () {
+     float [] cd = GetCenter ();
+     float a = cd [0] - coord ()[0];
+     float b = cd [1] - coord ()[1];
+     return sqrt (a*a+b*b);
+   }
+   
+   public float CenterDistance (float tt) {
+     float [] cd = GetCenter ();
+     float a = cd [0] - coord (tt)[0];
+     float b = cd [1] - coord (tt)[1];
+     return sqrt (a*a+b*b);
+   }
+   
+   public float CenterDistance (float tt, boolean senset) {
+     float [] cd = GetCenter ();
+     float a = cd [0] - coord (tt, senset)[0];
+     float b = cd [1] - coord (tt, senset)[1];
+     return sqrt (a*a+b*b);
+   }
    
    public float [] coord () {
-     print ("Bad call: abstract function. Code A.");
+     print ("Bad call: abstract function. Fail on Trajectory.coord ()");
      float [] ret = {0,0};
      return ret;
    }
    
    public float [] coord (float tt) {
-     print ("Bad call: abstract function. Code B.");
+     print ("Bad call: abstract function. Fail on Trajectory.coord (float).");
      float [] ret = {0,0};
      return ret;
    }
    
    public float [] coord (float tt, boolean senset) {
-     print ("Bad call: abstract function. Code C.");
+     print ("Bad call: abstract function. Fail on Trajectory.coord (float, boolean).");
      float [] ret = {0,0};
      return ret;
    }
@@ -41,13 +189,18 @@ class Trajectory {
      return ret;
    }
    
+   public float[] GetCenter () {
+     //float [] ret = {0, 0};
+     print ("Bad call: abstract function. Fail on Trajectory.GetCenter ()");
+     return null;
+   }
+   
    public float GetGuide () {
      return t0;
    }
    
    public float [] GetEndPoint () {
-     print ("Bad call: abstract function. Code D.");
-     float [] ret = {0, 0};
+     float [] ret = {coord (1)[0], coord (1)[1]};
      return ret;
    }
    
@@ -55,33 +208,34 @@ class Trajectory {
      return t;
    }
    
-   public float[] GetCenter () {
-     print ("Bad call: abstract function. Code E.");
-     float [] ret = {0,0};
-     return ret;
-   }
-   
    public float[] GetInitPoint () {
-     print ("Bad call: abstract function. Code F.");
-     float [] ret = {0,0};
+     float [] ret = {coord (0)[0],coord (0)[1]};
      return ret;
    }
    
    public float GetLength() {
-     print ("Bad call: abstract function. Code G.");
+     print ("Bad call: abstract function. Fail on Trajectory.GetLength ().");
      return 0;
+   }
+   
+   public float GetMaxCenterDistance () {
+     return Mcd;
+   }
+   
+   public float GetMinCenterDistance () {
+     return mcd;
    }
    
    public int GetNumberTrips () {
      return n;
    }
    
-   public boolean GetRoundTrip () {
-     return roundTrip;
-   }
-   
    public boolean GetSense () {
      return sense;
+   }
+   
+   public String GetTrajectoryType () {
+     return "Null";
    }
    
    public int GetType () {
@@ -130,10 +284,23 @@ class Trajectory {
        for (float fg = 0; fg <= 1; fg+= l) {
          noStroke ();
          fill (150);
-         ellipse (coord (fg, true)[0], coord (fg, true)[1], 3, 3);
+         ellipse (coord (fg, true)[0], coord (fg, true)[1], 2, 2);
        }
      } else {
        println ("Bad preview.");
+     }
+   }
+   
+   public void Preview (int precision) {
+     if (precision > 0) {
+       float l = 1/float (precision);
+       for (float fg = 0; fg <= 1; fg+= l) {
+         noStroke ();
+         fill (150);
+         ellipse (coord (fg, true)[0], coord (fg, true)[1], 3, 3);
+       }
+     } else {
+       println ("Bad input on Preview (int).");
      }
    }
    

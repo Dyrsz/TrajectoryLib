@@ -223,6 +223,42 @@ class CircularTrajectory extends Trajectory {
      return acos (alpha);
    }
    
+   public float CalcMaxCenterDistance () {
+     return r;
+   }
+   
+   public float CalcMaxCenterDistance (int i) {
+     return r;
+   }
+   
+   public float CalcMinCenterDistance () {
+     return r;
+   }
+   
+   public float CalcMinCenterDistance (int i) {
+     return r;
+   }
+   
+   public float CenDisMaxNormalized () {
+     return r;
+   }
+   
+   public float CenDisNormalized () {
+     return r;
+   }
+   
+   public float CenterDistance () {
+     return r;
+   }
+   
+   public float CenterDistance (float tt) {
+     return r;
+   }
+   
+   public float CenterDistance (float tt, boolean senset) {
+     return r;
+   }
+   
    private void CircleToArc (float cxt, float cyt, float rt) { // curv is unnecesary
      cx = cxt;
      cy = cyt;

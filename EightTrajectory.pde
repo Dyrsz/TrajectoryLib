@@ -40,6 +40,7 @@ class EightTrajectory extends Trajectory {
      SetVelocity (velt);
      SetRoundTrip (roundTript);
      SetType (typet);
+     ActualizeBasics ();
    }
    
    public float[] coord () {
@@ -124,13 +125,17 @@ class EightTrajectory extends Trajectory {
      return r;
    }
    
+   public String GetTrajectoryType () {
+     return "Eight";
+   }
+   
    public void SetAngle (float anglet) {
      angle = anglet;
    }
    
    public void SetCenter (float [] ct) {
      if (ct.length != 2) {
-       println("Bad Input on FlowerTrajectory.SetCenter().");
+       println("Bad Input on EightTrajectory.SetCenter().");
      } else {
        cx = ct [0];
        cy = ct [1];
@@ -138,15 +143,17 @@ class EightTrajectory extends Trajectory {
    }
    
    public void SetRadF (float radFt) {
-     radF = radFt;
+     radF = radFt - radFt% (PI/2);
+     ActualizeBasics ();
    }
    
    public void SetRadI (float radIt) {
-     radI = radIt;
+     radI = radIt - radIt% (PI/2);
+     ActualizeBasics ();
    }
    
    public void SetRadius (float rt) {
      r = rt;
+     ActualizeBasics ();
    }
-   
  }

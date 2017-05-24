@@ -100,7 +100,8 @@
          y1 = y2;
        }
      }
-     cotr = new CompTrajectory (trs, GetVelocity(), GetRoundTrip (), GetType ());
+     cotr = new CompTrajectory (trs, GetVelocity(), IsRoundTrip (), GetType ());
+     ActualizeBasics ();
    }
    
    public float [] coord () {
@@ -135,6 +136,10 @@
      return curv;
    }
    
+   public float GetLength () {
+     return cotr.GetLength ();
+   }
+   
    public int GetNumberVertex() {
      return n;
    }
@@ -145,6 +150,10 @@
    
    public CompTrajectory GetTrajectory () {
      return cotr;
+   }
+   
+   public String GetTrajectoryType () {
+     return "Polygon";
    }
    
    public void SetAngle (float anglet) {
@@ -170,5 +179,5 @@
    public void SetRadius (float rt) {
      AdjustPolygon (n, cx, cy, rt, angle, curv);
    }
-   
  }
+ 
