@@ -304,6 +304,35 @@ class Trajectory {
      }
    }
    
+   // There is a bug with this Processing's version:
+   // it seems that input "color" is the same as "int".
+   // I have put a boolean for control.
+   public void Preview (boolean b, color col) {
+     if (GetLength() > 5) {
+       float l = 5/GetLength ();
+       for (float fg = 0; fg <= 1; fg+= l) {
+         noStroke ();
+         fill (col);
+         ellipse (coord (fg, true)[0], coord (fg, true)[1], 2, 2);
+       }
+     } else {
+       println ("Bad preview.");
+     }
+   }
+   
+   public void Preview (boolean b, int precision, color col) {
+     if (precision > 0) {
+       float l = 1/float (precision);
+       for (float fg = 0; fg <= 1; fg+= l) {
+         noStroke ();
+         fill (col);
+         ellipse (coord (fg, true)[0], coord (fg, true)[1], 3, 3);
+       }
+     } else {
+       println ("Bad input on Preview (int).");
+     }
+   }
+   
    public void SetVelocity (float nvel) {
      vel = nvel;
    }

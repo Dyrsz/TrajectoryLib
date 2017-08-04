@@ -198,6 +198,16 @@ class LinealTrajectory extends Trajectory {
      return ret;
    }
    
+   public float [] GetEndPoint () {
+     float [] ret = {xf, yf};
+     return ret;
+   }
+   
+   public float [] GetInitPoint () {
+     float [] ret = {xi, yi};
+     return ret;
+   }
+   
    public float GetLength() {
      float xl = xf-xi;
      float yl = yf-yi;
@@ -214,6 +224,12 @@ class LinealTrajectory extends Trajectory {
    
    public LinealTrajectory GetTrajectoryY () {
      return trY;
+   }
+   
+   public void Preview () {
+     stroke (200);
+     strokeWeight (3);
+     line (xi, yi, xf, yf);
    }
    
    public void SetEndPoint (float [] pft) {

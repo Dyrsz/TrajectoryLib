@@ -9,7 +9,7 @@ class CircularTrajectory extends Trajectory {
     - Circle: Center (cx, cy), radius and inner angle.
     - Arc: Two points in a 2D space joined by a circle's arc.
       curv: distance between arc's extremes and circle's center.
-    - Tangent to two points with one direction asociated for the first.
+    - Tangent to two points with one direction associated for the first.
    */
    
    CircularTrajectory (float cxt, float cyt, float rt, float velt, boolean roundTript) {
